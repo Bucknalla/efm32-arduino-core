@@ -34,6 +34,7 @@
 #define EM_ADC_H
 
 #include "em_device.h"
+#define ADC_COUNT 3
 #if defined( ADC_COUNT ) && ( ADC_COUNT > 0 )
 
 #include <stdbool.h>

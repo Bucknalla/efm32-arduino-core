@@ -19,11 +19,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
  
-//bitband io opration,ÊµÏÖ51ÀàËÆµÄGPIO¿ØÖÆ¹¦ÄÜ
+//bitband io opration,Êµï¿½ï¿½51ï¿½ï¿½ï¿½Æµï¿½GPIOï¿½ï¿½ï¿½Æ¹ï¿½ï¿½ï¿½
 
 #ifndef __BITBAND_H__
 #define __BITBAND_H__
-#include "arduino.h"
+#include "Arduino.h"
 #include "em_bitband.h"
 #include "digitalPin.h"
 

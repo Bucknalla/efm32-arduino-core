@@ -1,3 +1,10 @@
+###########################################################
+# Author: Alex Bucknall <alex.bucknall@gmail.com>
+# Company: Balena Ltd.
+# Date: 17/08/2019
+# License: MIT
+###########################################################
+
 # EFM32 Boards
 menu.cpu=Processor
 menu.startadr=Startup adr
@@ -10,6 +17,108 @@ menu.jtag_swd=JTAG/SWD
 menu.extern_lib=Extern lib
 menu.upload_method=Upload method
 menu.log=Debug Log_level
+
+########################    BGM111    ###########################
+EFR32BG1B.name=BalenaFin Coprocessor
+
+EFR32BG1B.build.core=arduino
+EFR32BG1B.build.series=EFR32BG1B
+EFR32BG1B.build.variant=efr32bg1bf256
+EFR32BG1B.build.board=efr32bg1bf256
+EFR32BG1B.build.mcu=cortex-m4 -mthumb
+#EFR32BG1B.build.spacil_includes="-I{build.core.path}/efm32" "-I{build.system.path}" "-I{build.system.path}/emlib/inc" "-I{build.system.path}/emlib/src"
+
+EFR32BG1B.menu.cpu.256=EFR32BG1BF256(256kFLASH 16kSRAM)
+EFR32BG1B.menu.cpu.256.build.board=bgm111a256
+EFR32BG1B.menu.cpu.256.build.extra_flags=-DARM_MATH_CM4 -DEFR32BG1B132F256GJ43 -DRAMSIZE={upload.maximum_data_size}
+EFR32BG1B.menu.cpu.256.build.ldscript=ld/efr32bg1bf256.ld
+EFR32BG1B.menu.cpu.256.upload.maximum_size=131072
+EFR32BG1B.menu.cpu.256.upload.maximum_data_size=16384
+
+#EFM32G222.menu.cpu.64=EFM32G222F64(64kFLASH 16kSRAM)
+#EFM32G222.menu.cpu.64.build.board=efm32g222f64
+#EFM32G222.menu.cpu.64.build.extra_flags=-DARM_MATH_CM3 -DEFM32G222F64 -DRAMSIZE={upload.maximum_data_size}
+#EFM32G222.menu.cpu.64.build.ldscript=ld/efm32g222f64.ld
+#EFM32G222.menu.cpu.64.upload.maximum_size=65536
+#EFM32G222.menu.cpu.64.upload.maximum_data_size=16384
+
+#EFM32G222.menu.cpu.32=EFM32G222F32(32kFLASH 8kSRAM)
+#EFM32G222.menu.cpu.32.build.board=efm32g222f32
+#EFM32G222.menu.cpu.32.build.extra_flags=-DARM_MATH_CM3 -DEFM32G222F32 -DRAMSIZE={upload.maximum_data_size}
+#EFM32G222.menu.cpu.32.build.ldscript=ld/efm32g222f32.ld
+#EFM32G222.menu.cpu.32.upload.maximum_size=32768
+#EFM32G222.menu.cpu.32.upload.maximum_data_size=8192
+
+
+EFR32BG1B.build.f_cpu=14000000L
+EFR32BG1B.menu.clock_source.hfrc28=HFRCO (28MHz)
+EFR32BG1B.menu.clock_source.hfrc28.build.osc=28000000L  -DUSE_HFRCO
+EFR32BG1B.menu.clock_source.hfrc28.build.f_cpu=28000000L -DOSC{build.osc}
+EFR32BG1B.menu.clock_source.hfrc21=HFRCO (21MHz)
+EFR32BG1B.menu.clock_source.hfrc21.build.osc=21000000L  -DUSE_HFRCO
+EFR32BG1B.menu.clock_source.hfrc21.build.f_cpu=21000000L -DOSC{build.osc}
+EFR32BG1B.menu.clock_source.hfrc14=HFRCO (14MHz)
+EFR32BG1B.menu.clock_source.hfrc14.build.osc=14000000L  -DUSE_HFRCO
+EFR32BG1B.menu.clock_source.hfrc14.build.f_cpu=14000000L -DOSC{build.osc}
+EFR32BG1B.menu.clock_source.hfrc11=HFRCO (11MHz)
+EFR32BG1B.menu.clock_source.hfrc11.build.osc=11000000L  -DUSE_HFRCO
+EFR32BG1B.menu.clock_source.hfrc11.build.f_cpu=11000000L -DOSC{build.osc}
+#EFM32G222.menu.clock_source.lfrc=LFRCO
+#EFM32G222.menu.clock_source.lfrc.build.osc=32768L -DUSE_LFRCO
+#EFM32G222.menu.clock_source.hfxo=HFXO (32M)
+#EFM32G222.menu.clock_source.hfxO.build.osc=32000000L -DUSE_HFXO
+#EFM32G222.menu.clock_source.Lfxo=LFXO
+#EFM32G222.menu.clock_source.LfxO.build.osc=32768L -DUSE_LFXO
+
+EFR32BG1B.menu.serial.balenafin=BalenaFin
+EFR32BG1B.menu.serial.balenafin.build.extra_flags_serial=-DMENU_SERIAL=SerialBalenaFin
+EFR32BG1B.menu.serial.devkit=DevKit
+EFR32BG1B.menu.serial.devkit.build.extra_flags_serial=-DMENU_SERIAL=SerialDevKit
+EFR32BG1B.menu.serial.serial0=USART0(0#PE10/11,2#PC11/10) 
+EFR32BG1B.menu.serial.serial0.build.extra_flags_serial=-DMENU_SERIAL=SerialUSART0
+EFR32BG1B.menu.serial.serial1=USART1(0#PC0/1)
+EFR32BG1B.menu.serial.serial1.build.extra_flags_serial=-DMENU_SERIAL=SerialUSART1
+
+EFR32BG1B.build.vect=VECT_TAB_OFFSET=0x0000000
+EFR32BG1B.build.runin=FLASH
+EFR32BG1B.build.uploadadr=0x00000000
+
+#-------------------------------------- DEBUG & LOGLEVEL ---------------------------------------#
+EFR32BG1B.menu.log.default=Release(no-exceptions)
+EFR32BG1B.menu.log.default.build.log_level=-fno-exceptions
+EFR32BG1B.menu.log.Release=Release(exceptions)
+EFR32BG1B.menu.log.Release.build.log_level=
+EFR32BG1B.menu.log.fatal=FATAL
+EFR32BG1B.menu.log.fatal.build.log_level=-D__LOG_LEVEL=1 -DDEBUG_EFM
+EFR32BG1B.menu.log.error=ERROR
+EFR32BG1B.menu.log.error.build.log_level=-D__LOG_LEVEL=2 -DDEBUG_EFM
+EFR32BG1B.menu.log.warning=WARNING
+EFR32BG1B.menu.log.warning.build.log_level=-D__LOG_LEVEL=3 -DDEBUG_EFM
+EFR32BG1B.menu.log.info=INFO
+EFR32BG1B.menu.log.info.build.log_level=-D__LOG_LEVEL=4 -DDEBUG_EFM
+EFR32BG1B.menu.log.debug=DEBUG
+EFR32BG1B.menu.log.debug.build.log_level=-D__LOG_LEVEL=5 -DDEBUG_EFM
+EFR32BG1B.menu.log.trace=TRACE
+EFR32BG1B.menu.log.trace.build.log_level=-D__LOG_LEVEL=6 -DDEBUG_EFM
+
+EFR32BG1B.upload.file_type=bin
+EFR32BG1B.upload.params.quiet=no
+EFR32BG1B.upload.use_1200bps_touch=false
+
+#--------------------------UPLOAD METHODS------------------------------
+
+EFR32BG1B.upload.auto_reset=fauls
+
+# Upload choices
+EFR32BG1B.menu.upload_method.jLinkMethod=JLink
+EFR32BG1B.menu.upload_method.jLinkMethod.upload.tool=jlinkob_upload
+EFR32BG1B.menu.upload_method.jLinkMethod.upload.protocol=jlink
+EFR32BG1B.menu.upload_method.jLinkMethod.upload.device=EFR32BG1BF128
+
+EFR32BG1B.menu.upload_method.serialMethod=Serial
+EFR32BG1B.menu.upload_method.serialMethod.upload.protocol=maple_serial
+EFR32BG1B.menu.upload_method.serialMethod.upload.tool=serial_upload
+
 
 ########################    EFM32G222Fx    ###########################
 EFM32G222.name=EFM32G222Fx

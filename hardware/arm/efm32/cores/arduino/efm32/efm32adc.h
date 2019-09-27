@@ -21,6 +21,12 @@
 #ifndef _EFMM32_ADC_H_
 #define _EFMM32_ADC_H_
 
+#include "efm32_build_defines.h"
+#include "variant.h"
+#include "wiring_constants.h"
+#include "efm32gpio.h"
+#include "em_adc.h"
+
 #define INTERNAL1V25 0
 #define DEFAULT  0
 #define INTERNAL2V5  1
@@ -52,7 +58,9 @@ int analogGetResolution(void);
 void analogReference(int ref);
 int analogGetReference(void);
 
+#ifdef _ADC_SINGLECTRL_INPUTSEL_MASK
 int analogReadChannel(ADC_SingleInput_TypeDef adcSingleInputChx, uint8_t diff);
+#endif
 int analogRead(uint8_t pin);
 float convertToCelsius(int32_t adcSample);
 float convertToFahrenheit(uint32_t adcSample);

@@ -90,6 +90,7 @@ int analogGetReference(void) {
 static uint8_t adcinited = 0;
 
 extern "C"
+#ifdef _ADC_SINGLECTRL_INPUTSEL_MASK
 int analogReadChannel(ADC_SingleInput_TypeDef adcSingleInputChx, uint8_t diff) {
 
   if (adcinited == 0) {
@@ -118,6 +119,40 @@ int analogReadChannel(ADC_SingleInput_TypeDef adcSingleInputChx, uint8_t diff) {
 
   return  ADC_DataSingleGet(ADC0);// Get ADC result
 }
+#endif
+
+
+int analogReadChannel(ADC_SingleInput_TypeDef adcSingleInputChx, uint8_t diff) {
+{
+  // Enable ADC0 clock
+  if (adcinited == 0) {
+    adcinited = 1;
+    CMU_ClockEnable(cmuClock_ADC0, true);
+
+    // Declare init structs
+    ADC_Init_TypeDef init = ADC_INIT_DEFAULT;
+
+    // Modify init structs and initialize
+    init.prescale = ADC_PrescaleCalc(adcFreq, 0); // Init to max ADC clock for Series 0
+    ADC_Init(ADC0, &init);
+  }
+
+  ADC_InitSingle_TypeDef initSingle = ADC_INITSINGLE_DEFAULT;
+  initSingle.diff       = false;        // single ended
+  initSingle.reference  = adcRef2V5;    // internal 2.5V reference
+  initSingle.resolution = adcRes12Bit;  // 12-bit resolution
+
+  // Select ADC input. See README for corresponding EXP header pin.
+  initSingle.input = adcSingleInputCh7;
+  init.timebase = ADC_TimebaseCalc(0);
+
+  ADC_InitSingle(ADC0, &initSingle);
+
+  return  ADC_DataSingleGet(ADC0);// Get ADC result
+
+}
+
+
 
 extern "C"
 int analogRead(uint8_t ucPin) {
