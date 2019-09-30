@@ -121,9 +121,8 @@ int analogReadChannel(ADC_SingleInput_TypeDef adcSingleInputChx, uint8_t diff) {
 }
 #endif
 
-
-int analogReadChannel(ADC_SingleInput_TypeDef adcSingleInputChx, uint8_t diff) {
-{
+extern "C" {
+int analogReadChannel(ADC_PosSel_TypeDef adcSingleInputChx, uint8_t diff) {
   // Enable ADC0 clock
   if (adcinited == 0) {
     adcinited = 1;
@@ -131,70 +130,97 @@ int analogReadChannel(ADC_SingleInput_TypeDef adcSingleInputChx, uint8_t diff) {
 
     // Declare init structs
     ADC_Init_TypeDef init = ADC_INIT_DEFAULT;
+    ADC_InitSingle_TypeDef initSingle = ADC_INITSINGLE_DEFAULT;
 
     // Modify init structs and initialize
-    init.prescale = ADC_PrescaleCalc(adcFreq, 0); // Init to max ADC clock for Series 0
+    init.prescale = ADC_PrescaleCalc(adcFreq, 0); // Init to max ADC clock for Series 1
+
+    initSingle.diff       = false;        // single ended
+    initSingle.reference  = adcRef2V5;    // internal 2.5V reference
+    initSingle.resolution = adcRes12Bit;  // 12-bit resolution
+    initSingle.acqTime    = adcAcqTime4;  // set acquisition time to meet minimum requirement
+
+    // Select ADC input. See README for corresponding EXP header pin.
+    initSingle.posSel = adcPosSelAPORT2XCH9;
+    init.timebase = ADC_TimebaseCalc(0);
+
     ADC_Init(ADC0, &init);
+    ADC_InitSingle(ADC0, &initSingle);
+    // CMU_ClockEnable(cmuClock_ADC0, true);
+
+    // // Declare init structs
+    // ADC_Init_TypeDef init = ADC_INIT_DEFAULT;
+
+    // // Modify init structs and initialize
+    // init.prescale = ADC_PrescaleCalc(adcFreq, 0); // Init to max ADC clock for Series 0
+    // ADC_Init(ADC0, &init);
   }
 
-  ADC_InitSingle_TypeDef initSingle = ADC_INITSINGLE_DEFAULT;
-  initSingle.diff       = false;        // single ended
-  initSingle.reference  = adcRef2V5;    // internal 2.5V reference
-  initSingle.resolution = adcRes12Bit;  // 12-bit resolution
+  // ADC_InitSingle_TypeDef initSingle = ADC_INITSINGLE_DEFAULT;
+  // initSingle.diff       = false;        // single ended
+  // initSingle.reference  = adcRef2V5;    // internal 2.5V reference
+  // initSingle.resolution = adcRes12Bit;  // 12-bit resolution
 
-  // Select ADC input. See README for corresponding EXP header pin.
-  initSingle.input = adcSingleInputCh7;
-  init.timebase = ADC_TimebaseCalc(0);
+  // // Select ADC input. See README for corresponding EXP header pin.
+  // initSingle.input = adcSingleInputCh7;
+  // init.timebase = ADC_TimebaseCalc(0);
 
-  ADC_InitSingle(ADC0, &initSingle);
+  // ADC_InitSingle(ADC0, &initSingle);
+  ADC_Start(ADC0, adcStartSingle);
 
+  // Wait for conversion to be complete
+  while(!(ADC0->STATUS & _ADC_STATUS_SINGLEDV_MASK));
+
+    // Get ADC result
   return  ADC_DataSingleGet(ADC0);// Get ADC result
 
 }
+}
 
 
-
-extern "C"
+extern "C" {
 int analogRead(uint8_t ucPin) {
   uint32_t ch = g_Pin2PortMapArray[ucPin].adc_channel;
   if (ch == NO_ADC) return 0;
-  return analogReadChannel((ADC_SingleInput_TypeDef)ch, false);
+  return analogReadChannel(adcPosSelAPORT2XCH9, false);
+}
 }
 
-extern "C"
+extern "C" {
 float convertToCelsius(int32_t adcSample) {
   float temp;
-  /* Factory calibration temperature from device information page. */
-  float cal_temp_0 = (float)((DEVINFO->CAL & _DEVINFO_CAL_TEMP_MASK)
-                             >> _DEVINFO_CAL_TEMP_SHIFT);
+  // /* Factory calibration temperature from device information page. */
+  // float cal_temp_0 = (float)((DEVINFO->CAL & _DEVINFO_CAL_TEMP_MASK)
+  //                            >> _DEVINFO_CAL_TEMP_SHIFT);
 
-  float cal_value_0 = (float)((DEVINFO->ADC0CAL2
-                               & _DEVINFO_ADC0CAL2_TEMP1V25_MASK)
-                              >> _DEVINFO_ADC0CAL2_TEMP1V25_SHIFT);
+  // float cal_value_0 = (float)((DEVINFO->ADC0CAL2
+  //                              & _DEVINFO_ADC0CAL2_TEMP1V25_MASK)
+  //                             >> _DEVINFO_ADC0CAL2_TEMP1V25_SHIFT);
 
-  /* Temperature gradient (from datasheet) */
-  float t_grad = -6.27;
+  // /* Temperature gradient (from datasheet) */
+  // float t_grad = -6.27;
 
-  temp = (cal_temp_0 - ((cal_value_0 - adcSample)  / t_grad));
+  // temp = (cal_temp_0 - ((cal_value_0 - adcSample)  / t_grad));
 
   return temp;
 }
-
+}
 /**************************************************************************//**
   @brief Convert ADC sample values to fahrenheit
   @param adcSample Raw value from ADC to be converted to fahrenheit
   @return The temperature in degrees Fahrenheit
 *****************************************************************************/
-extern "C"
-float convertToFahrenheit(uint32_t adcSample)
-{
-  float celsius;
-  float fahrenheit;
-  celsius = convertToCelsius(adcSample);
+extern "C" {
+  float convertToFahrenheit(uint32_t adcSample)
+  {
+    float celsius;
+    float fahrenheit;
+    celsius = convertToCelsius(adcSample);
 
-  fahrenheit =  (celsius * (9.0 / 5.0)) + 32.0;
+    fahrenheit =  (celsius * (9.0 / 5.0)) + 32.0;
 
-  return fahrenheit;
+    return fahrenheit;
+  }
 }
 
-ADC adc;
+// ADC adc;

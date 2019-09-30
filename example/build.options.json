@@ -1,0 +1,11 @@
+{
+  "additionalFiles": "",
+  "builtInLibrariesFolders": "/opt/arduino-1.8.9/libraries",
+  "customBuildProperties": "build.warn_data_percentage=75",
+  "fqbn": "arduino:samd:mkr1000",
+  "hardwareFolders": "/home/alex/.arduino15/packages,/home/alex/Arduino/hardware",
+  "otherLibrariesFolders": "/home/alex/Arduino/libraries",
+  "runtime.ide.version": "10607",
+  "sketchLocation": "/home/alex/GitHub/efm32-arduino-core/example/example.ino",
+  "toolsFolders": ""
+}

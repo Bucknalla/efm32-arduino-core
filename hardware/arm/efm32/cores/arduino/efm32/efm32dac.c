@@ -26,30 +26,47 @@
 #include "em_chip.h"
 #include "em_cmu.h"
 #include "em_emu.h"
-#include "em_dac.h"
+#include "em_idac.h"
 
 #include "efm32_build_defines.h"
 #include "variant.h"
 #include "wiring_constants.h"
 #include "efm32gpio.h"
 
-static uint32_t dacRef = dacRef1V25; /* dacRef1V25 / dacRef2V5 / dacRefVDD;*/
+// static uint32_t dacRef = dacRef1V25; /* dacRef1V25 / dacRef2V5 / dacRefVDD;*/
 
-void setDacRef(uint32_t ref){
-	dacRef = ref;
-}
+// void setDacRef(uint32_t ref){
+// 	dacRef = ref;
+// }
 
 void initDac(uint32_t channel)
 {
-  DAC_Init_TypeDef        init        = DAC_INIT_DEFAULT;
-  DAC_InitChannel_TypeDef initChannel = DAC_INITCHANNEL_DEFAULT;
+    // Enable IDAC clock
+  CMU_ClockEnable(cmuClock_IDAC0, true);
 
-  CMU_ClockEnable(cmuClock_DAC0, true);
-  init.prescale = DAC_PrescaleCalc(1000000, 0);
-  init.reference = dacRef;
-  DAC_Init(DAC0, &init);
-  DAC_InitChannel(DAC0, &initChannel, channel);
-  DAC_Enable(DAC0, channel, true);
+  // Initialize IDAC
+  IDAC_Init_TypeDef init = IDAC_INIT_DEFAULT;
+  init.outMode = idacOutputAPORT1XCH10; // Choose output to be on PA2
+  IDAC_Init(IDAC0, &init);
+
+  // Choose the output current to be 2 microamps
+  IDAC_RangeSet(IDAC0, idacCurrentRange1);
+  IDAC_StepSet(IDAC0, 4);
+
+  // Enable IDAC output mode and also enable the IDAC module itself
+  IDAC_OutEnable(IDAC0, true);
+  IDAC_Enable(IDAC0, true);
+
+
+  // DAC_Init_TypeDef        init        = DAC_INIT_DEFAULT;
+  // DAC_InitChannel_TypeDef initChannel = DAC_INITCHANNEL_DEFAULT;
+
+  // CMU_ClockEnable(cmuClock_DAC0, true);
+  // init.prescale = DAC_PrescaleCalc(1000000, 0);
+  // init.reference = dacRef;
+  // DAC_Init(DAC0, &init);
+  // DAC_InitChannel(DAC0, &initChannel, channel);
+  // DAC_Enable(DAC0, channel, true);
 }
 
 uint32_t dacValueCalcul(float vOut, float vRef)
@@ -59,14 +76,14 @@ uint32_t dacValueCalcul(float vOut, float vRef)
 
 uint32_t dacValueCalculRef(float vOut)
 {
-  switch (dacRef){
-	 case  dacRef2V5:
-	      return dacValueCalcul(vOut, 2.5);
-  	 case  dacRefVDD:
-	      return dacValueCalcul(vOut, 3.3);
-	default:
-	     break;
-  }	
+  // switch (dacRef){
+	//  case  dacRef2V5:
+	//       return dacValueCalcul(vOut, 2.5);
+  // 	 case  dacRefVDD:
+	//       return dacValueCalcul(vOut, 3.3);
+	// default:
+	//      break;
+  // }	
   return dacValueCalcul(vOut, 1.25);
 }
 
@@ -75,6 +92,6 @@ uint32_t dacValueCalculRef(float vOut)
  ***************************************************************/
 void  dacWrite(uint32_t channel,uint32_t dacValue){
   initDac(channel);
-  DAC_ChannelOutputSet(DAC0, channel, dacValue);
+  IDAC_ChannelOutputSet(IDAC0, channel, dacValue);
 }
 

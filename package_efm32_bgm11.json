@@ -1,0 +1,33 @@
+{
+    "packages":[
+        {
+            "maintainer": "balena", 
+            "help": {
+                "online": "https://balena.io/fin"
+            }, 
+            "websiteURL": "https://github.com/balena-io/balena-fin-coprocesser-arduino", 
+            "platforms": [
+                {
+                    "category": "BGM111", 
+                    "help": {
+                      "online": "https://github.com/balena-io/balena-fin-coprocesser-arduino/versions/1.0.0/"
+                    }, 
+                    "url": "https://github.com/balena-io/balena-fin-coprocesser-arduinoreleases/download/1.0.0/coprocessor-1.0.0.zip", 
+                    "checksum": "", 
+                    "name": "bgm111", 
+                    "version": "1.0.0", 
+                    "architecture": "efm32", 
+                    "archiveFileName": "coprocessor-2.0.0.zip", 
+                    "size": "", 
+                    "toolsDependencies": [
+                    ], 
+                    "boards": [
+                      {
+                        "name": "balenafin coprocessor"
+                      }
+                    ]
+                  }, 
+            ]
+        }
+    ]   
+}

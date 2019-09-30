@@ -12,7 +12,7 @@ void SystemClock_Config(void) {
 	/* Using HFRCO at 14MHz as high frequency clock, HFCLK */
 	CMU_ClockSelectSet(cmuClock_HF, cmuSelect_HFRCO);
 # if    F_CPU > 21000000L	
-	CMU_HFRCOBandSet(cmuHFRCOBand_28MHz);
+	CMU_HFRCOBandSet(cmuHFRCOFreq_38M0Hz);
 # elif  F_CPU > 14000000L
 	CMU_HFRCOBandSet(cmuHFRCOBand_21MHz);
 # elif  F_CPU < 14000000L

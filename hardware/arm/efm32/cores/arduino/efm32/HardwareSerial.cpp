@@ -59,73 +59,83 @@ void HardwareSerial::setRouteLoc(uint8_t route) {
 }
 
 
-void HardwareSerial::initSpiGpio(USART_Mode_TypeDef  spiMode) {
+void HardwareSerial::initSpiGpio(USART_Mode_TypeDef spiMode) {
 	
-  USART_TypeDef *spi = this->instance;	
+  USART_InitSync_TypeDef *config;	
+  this->instance = USART1;
+
+  CMU_ClockEnable(cmuClock_GPIO, true);
+  CMU_ClockEnable(cmuClock_USART1, true);
   /* Setting baudrate */
-  spi->CLKDIV = 128 * (SPI_PERCLK_FREQUENCY / SPI_BAUDRATE - 2);
-
-  /* Configure SPI */
-  /* Using synchronous (SPI) mode*/
-
-  spi->CTRL = USART_CTRL_SYNC;
-  /* Clearing old transfers/receptions, and disabling interrupts */
-  spi->CMD = USART_CMD_CLEARRX | USART_CMD_CLEARTX;
-  spi->IEN = 0;
+  config->master       = true;
+  config->baudrate     = 1000000;
+  config->autoCsEnable = true;            // CS pin controlled by hardware, not firmware
+  config->clockMode    = usartClockMode0; // clock idle low, sample on rising/first edge
+  config->msbf         = true;            // send MSB first
+  config->enable       = usartDisable;    // Make sure to keep USART disabled until it's all set up
+  USART_InitSync(this->instance, config);
   /* Enabling pins and setting location */
-  spi->ROUTE = USART_ROUTE_TXPEN | USART_ROUTE_RXPEN | USART_ROUTE_CLKPEN | USART_ROUTE_CSPEN | USART_ROUTE_LOCATION_LOCx;
+  this->instance->ROUTELOC0 = (USART_ROUTELOC0_CLKLOC_LOC11) | // US1_CLK       on location 11 = PC8 per datasheet section 6.4 = EXP Header pin 8
+                      (USART_ROUTELOC0_CSLOC_LOC11)  | // US1_CS        on location 11 = PC9 per datasheet section 6.4 = EXP Header pin 10
+                      (USART_ROUTELOC0_TXLOC_LOC11)  | // US1_TX (MOSI) on location 11 = PC6 per datasheet section 6.4 = EXP Header pin 4
+                      (USART_ROUTELOC0_RXLOC_LOC11);   // US1_RX (MISO) on location 11 = PC7 per datasheet section 6.4 = EXP Header pin 6
 	
     /* Set GPIO config to master */
-  GPIO_Mode_TypeDef   gpioModeMosi = gpioModePushPull;
-  GPIO_Mode_TypeDef   gpioModeMiso = gpioModeInput;
-  GPIO_Mode_TypeDef   gpioModeCs   = gpioModePushPull;
-  GPIO_Mode_TypeDef   gpioModeClk  = gpioModePushPull;
+  // GPIO_Mode_TypeDef   gpioModeMosi = gpioModePushPull;
+  // GPIO_Mode_TypeDef   gpioModeMiso = gpioModeInput;
+  // GPIO_Mode_TypeDef   gpioModeCs   = gpioModePushPull;
+  // GPIO_Mode_TypeDef   gpioModeClk  = gpioModePushPull;
 
-  if(spiMode == SPI_MAST_TYPE){
-	gpioModeMosi = gpioModePushPull;
-	gpioModeMiso = gpioModeInput;
-	gpioModeCs   = gpioModePushPull;
-	gpioModeClk  = gpioModePushPull;
-  }else{
-    /* Enabling TX and RX */
-    spi->CMD = USART_CMD_TXEN | USART_CMD_RXEN;
-  }
-  /* Clear previous interrupts */
-  spi->IFC = _USART_IFC_MASK;
+  GPIO_PinModeSet(gpioPortC, 8, gpioModePushPull, 0); // US1_CLK is push pull
+  GPIO_PinModeSet(gpioPortC, 9, gpioModePushPull, 1); // US1_CS is push pull
+  GPIO_PinModeSet(gpioPortC, 6, gpioModePushPull, 1); // US1_TX (MOSI) is push pull
+  GPIO_PinModeSet(gpioPortC, 7, gpioModeInput, 1);    // US1_RX (MISO) is input
+
+  // if(spiMode == SPI_MAST_TYPE){
+	// gpioModeMosi = gpioModePushPull;
+	// gpioModeMiso = gpioModeInput;
+	// gpioModeCs   = gpioModePushPull;
+	// gpioModeClk  = gpioModePushPull;
+  // }else{
+  //   /* Enabling TX and RX */
+  //   spi->CMD = USART_CMD_TXEN | USART_CMD_RXEN;
+  // }
+  // /* Clear previous interrupts */
+  // spi->IFC = _USART_IFC_MASK;
 
   /* IO configuration */
-#ifdef USART0
-  if(spi == USART0){
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART0_TX_PORT(routeLoc), AF_USART0_TX_PIN(routeLoc), gpioModeMosi, 0);  /* TX/MOSI */
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART0_RX_PORT(routeLoc), AF_USART0_RX_PIN(routeLoc), gpioModeMiso, 0);  /* RX/MISO */
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART0_CS_PORT(routeLoc), AF_USART0_CS_PIN(routeLoc), gpioModeCs,   0);  /* CS */
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART0_CLK_PORT(routeLoc),AF_USART0_CLK_PIN(routeLoc),gpioModeClk,  0);  /* Clock */
-  }
-#endif
-#ifdef USART1 
-  if(spi == USART1){
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART1_TX_PORT(routeLoc), AF_USART0_TX_PIN(routeLoc), gpioModeMosi, 0);  /* TX/MOSI */
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART1_RX_PORT(routeLoc), AF_USART0_RX_PIN(routeLoc), gpioModeMiso, 0);  /* RX/MISO */
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART1_CS_PORT(routeLoc), AF_USART0_CS_PIN(routeLoc), gpioModeCs,   0);  /* CS */
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART1_CLK_PORT(routeLoc),AF_USART0_CLK_PIN(routeLoc),gpioModeClk,  0);  /* Clock */
-  }
-#endif
-#ifdef USART2
-  if(spi == USART2){
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART2_TX_PORT(routeLoc), AF_USART0_TX_PIN(routeLoc), gpioModeMosi, 0);  /* TX/MOSI */
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART2_RX_PORT(routeLoc), AF_USART0_RX_PIN(routeLoc), gpioModeMiso, 0);  /* RX/MISO */
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART2_CS_PORT(routeLoc), AF_USART0_CS_PIN(routeLoc), gpioModeCs,   0);  /* CS */
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART2_CLK_PORT(routeLoc),AF_USART0_CLK_PIN(routeLoc),gpioModeClk,  0);  /* Clock */
-  };
-#endif
-#ifdef USART3
-  if(spi == USART3){
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART3_TX_PORT(routeLoc), AF_USART0_TX_PIN(routeLoc), gpioModeMosi, 0);  /* TX/MOSI */
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART3_RX_PORT(routeLoc), AF_USART0_RX_PIN(routeLoc), gpioModeMiso, 0);  /* RX/MISO */
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART3_CS_PORT(routeLoc), AF_USART0_CS_PIN(routeLoc), gpioModeCs,   0);  /* CS */
-	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART3_CLK_PORT(routeLoc),AF_USART0_CLK_PIN(routeLoc),gpioModeClk,  0);  /* Clock */
-  };
-#endif
+// #ifdef USART0
+//   if(spi == USART0){
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART0_TX_PORT(routeLoc), AF_USART0_TX_PIN(routeLoc), gpioModeMosi, 0);  /* TX/MOSI */
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART0_RX_PORT(routeLoc), AF_USART0_RX_PIN(routeLoc), gpioModeMiso, 0);  /* RX/MISO */
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART0_CS_PORT(routeLoc), AF_USART0_CS_PIN(routeLoc), gpioModeCs,   0);  /* CS */
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART0_CLK_PORT(routeLoc),AF_USART0_CLK_PIN(routeLoc),gpioModeClk,  0);  /* Clock */
+//   }
+// #endif
+// #ifdef USART1 
+//   if(spi == USART1){
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART1_TX_PORT(routeLoc), AF_USART0_TX_PIN(routeLoc), gpioModeMosi, 0);  /* TX/MOSI */
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART1_RX_PORT(routeLoc), AF_USART0_RX_PIN(routeLoc), gpioModeMiso, 0);  /* RX/MISO */
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART1_CS_PORT(routeLoc), AF_USART0_CS_PIN(routeLoc), gpioModeCs,   0);  /* CS */
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART1_CLK_PORT(routeLoc),AF_USART0_CLK_PIN(routeLoc),gpioModeClk,  0);  /* Clock */
+//   }
+// #endif
+// #ifdef USART2
+//   if(spi == USART2){
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART2_TX_PORT(routeLoc), AF_USART0_TX_PIN(routeLoc), gpioModeMosi, 0);  /* TX/MOSI */
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART2_RX_PORT(routeLoc), AF_USART0_RX_PIN(routeLoc), gpioModeMiso, 0);  /* RX/MISO */
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART2_CS_PORT(routeLoc), AF_USART0_CS_PIN(routeLoc), gpioModeCs,   0);  /* CS */
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART2_CLK_PORT(routeLoc),AF_USART0_CLK_PIN(routeLoc),gpioModeClk,  0);  /* Clock */
+//   };
+// #endif
+// #ifdef USART3
+//   if(spi == USART3){
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART3_TX_PORT(routeLoc), AF_USART0_TX_PIN(routeLoc), gpioModeMosi, 0);  /* TX/MOSI */
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART3_RX_PORT(routeLoc), AF_USART0_RX_PIN(routeLoc), gpioModeMiso, 0);  /* RX/MISO */
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART3_CS_PORT(routeLoc), AF_USART0_CS_PIN(routeLoc), gpioModeCs,   0);  /* CS */
+// 	GPIO_PinModeSet((GPIO_Port_TypeDef)AF_USART3_CLK_PORT(routeLoc),AF_USART0_CLK_PIN(routeLoc),gpioModeClk,  0);  /* Clock */
+//   };
+// #endif
 }
 
 void HardwareSerial::initSerialGpio(void) {
@@ -311,7 +321,7 @@ void HardwareSerial::begin(const uint32_t baud,uint8_t config ){
     USART_InitAsync(this->instance, &initasync);
     this->instance->IFC = _USART_IFC_MASK;
 	this->instance->IEN = USART_IEN_RXDATAV;
-    this->instance->ROUTE |=  USART_ROUTE_TXPEN | USART_ROUTE_RXPEN | USART_ROUTE_LOCATION_LOCx;
+    this->instance->ROUTEPEN |=  USART_ROUTEPEN_TXPEN | USART_ROUTEPEN_RXPEN | USART_ROUTE_LOCATION_LOCx;
   }
   
   if (buf->mode == UART_TYPE) {
@@ -390,13 +400,17 @@ void HardwareSerial::initPort(void) {
   /* Enable CORE LE clock in order to access LE modules */
     CMU_ClockEnable(cmuClock_HFLE, true); // Necessary for accessing LE modules
 #if (LESERIAL_BAUDRATE >9600)
-    CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2); // Set CORELEDIV2 reference clock
+    // CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2); // Set CORELEDIV2 reference clock
+/**
+ * @todo Determine which clock to use
+ * @body BGM111 implements different clocks, check which to use
+ */
 #elif USE_LFBLFXO >0 
     CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFXO);       // Set LFXO reference clock baud <=9600
 #elif USE_LFBLFRCO > 0
     CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_LFRCO);      // Set LFRCO reference clock baud <=9600
 #else
-    CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2); // Set CORELEDIV2 reference clock
+    // CMU_ClockSelectSet(cmuClock_LFB, cmuSelect_CORELEDIV2); // Set CORELEDIV2 reference clock
 #endif
     CMU_ClockEnable(cmuClock_LEUART0, true);
  //   CMU_ClockDivSet(cmuClock_LEUART0, cmuClkDiv_1); // Don't prescale LEUART clock
@@ -406,7 +420,7 @@ void HardwareSerial::initPort(void) {
 	init.baudrate = this->baud;
     LEUART_Init(LEUART0, &init);
     LEUART0->IEN = LEUART_IEN_RXDATAV;
-    LEUART0->ROUTE = USART_ROUTE_LOCATION_LOCx | LEUART_ROUTE_RXPEN | LEUART_ROUTE_TXPEN;
+    LEUART0->ROUTEPEN = USART_ROUTE_LOCATION_LOCx | LEUART_ROUTEPEN_RXPEN | LEUART_ROUTEPEN_TXPEN;
   }
 #endif
 #if   defined(LEUART1)&& (USE_LEUART1 >0)

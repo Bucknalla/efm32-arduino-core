@@ -70,10 +70,8 @@ EFR32BG1B.menu.clock_source.hfrc11.build.f_cpu=11000000L -DOSC{build.osc}
 #EFM32G222.menu.clock_source.Lfxo=LFXO
 #EFM32G222.menu.clock_source.LfxO.build.osc=32768L -DUSE_LFXO
 
-EFR32BG1B.menu.serial.balenafin=BalenaFin
-EFR32BG1B.menu.serial.balenafin.build.extra_flags_serial=-DMENU_SERIAL=SerialBalenaFin
-EFR32BG1B.menu.serial.devkit=DevKit
-EFR32BG1B.menu.serial.devkit.build.extra_flags_serial=-DMENU_SERIAL=SerialDevKit
+EFR32BG1B.menu.serial.leserial=LEUART0(0#PD4/5,1#PB13/14)
+EFR32BG1B.menu.serial.leserial.build.extra_flags_serial=-DMENU_SERIAL=SerialLEUART0
 EFR32BG1B.menu.serial.serial0=USART0(0#PE10/11,2#PC11/10) 
 EFR32BG1B.menu.serial.serial0.build.extra_flags_serial=-DMENU_SERIAL=SerialUSART0
 EFR32BG1B.menu.serial.serial1=USART1(0#PC0/1)

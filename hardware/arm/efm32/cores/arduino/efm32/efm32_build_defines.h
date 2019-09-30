@@ -215,7 +215,7 @@
 #elif defined(EFR32BG1B132F256GJ43)
   #define EFR32BG1B  1  
   #define CMSIS_STARTUP_C   "SiliconLabs/EFR32BG1B/Source/GCC/startup_efr32bg1b.c"
-  #define CMSIS_SYSTEM_C    "SiliconLabs/EFR32BG1B/Source/startup_efr32bg1b.c"
+  #define CMSIS_SYSTEM_C    "SiliconLabs/EFR32BG1B/Source/system_efr32bg1b.c"
   #define CHIP_PIN_LIST PIN(A,0),PIN(B,7),PIN(B,8),PIN(B,11),PIN(B,13),PIN(B,14),PIN(C,0),PIN(C,1),PIN(C,14),PIN(C,15),PIN(D,6),PIN(D,7),PIN(F,12),PIN(F,13),PIN(F,0),PIN(F,1),PIN(F,2)
 #else 
   #error UNKNOWN CHIP 

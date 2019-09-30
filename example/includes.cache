@@ -1,0 +1,17 @@
+[
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "/home/alex/.arduino15/packages/arduino/hardware/samd/1.8.3/cores/arduino"
+  },
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "/home/alex/.arduino15/packages/arduino/hardware/samd/1.8.3/variants/mkr1000"
+  },
+  {
+    "Sourcefile": "/home/alex/GitHub/efm32-arduino-core/example/sketch/example.ino.cpp",
+    "Include": "",
+    "Includepath": null
+  }
+]

@@ -136,17 +136,17 @@ static void initTimer(TIMER_TypeDef* TIMERx, unsigned int ch, unsigned int route
   unsigned int routPin;
   switch (ch){
     case 1:
-	  routPin = TIMER_ROUTE_CC1PEN;
+	  routPin = TIMER_ROUTEPEN_CC0PEN;
 	  break;
     case 2:
-	  routPin = TIMER_ROUTE_CC2PEN;
+	  routPin = TIMER_ROUTEPEN_CC1PEN;
 	  break;
 	default:
- 	  routPin = TIMER_ROUTE_CC0PEN;  
+ 	  routPin = TIMER_ROUTEPEN_CC0PEN;  
       break;	  
   }
   
-  TIMERx->ROUTE |= (routPin | routeLoc);
+  TIMERx->ROUTEPEN |= (routPin | routeLoc);
 
   // Set top value to overflow at the desired PWM_FREQ frequency
   TIMER_TopSet(TIMERx, CMU_ClockFreqGet(cmuClock_TIMERx) / PWM_FREQ);

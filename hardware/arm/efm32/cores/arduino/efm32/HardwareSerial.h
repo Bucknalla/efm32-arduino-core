@@ -121,7 +121,7 @@ class HardwareSerial : public Stream {
 	uint32_t baud;
 	uint8_t  config;
 	uint32_t routeLoc = 0;
-    uint32_t USART_ROUTE_LOCATION_LOCx = USART_ROUTE_LOCATION_LOC0;
+    uint32_t USART_ROUTE_LOCATION_LOCx = 0xFF;
   protected:
 };
 

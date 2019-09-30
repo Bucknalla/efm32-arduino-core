@@ -58,15 +58,14 @@ int analogGetResolution(void);
 void analogReference(int ref);
 int analogGetReference(void);
 
-#ifdef _ADC_SINGLECTRL_INPUTSEL_MASK
-int analogReadChannel(ADC_SingleInput_TypeDef adcSingleInputChx, uint8_t diff);
-#endif
+int analogReadChannel(ADC_PosSel_TypeDef adcSingleInputChx, uint8_t diff);
 int analogRead(uint8_t pin);
 float convertToCelsius(int32_t adcSample);
 float convertToFahrenheit(uint32_t adcSample);
 
 #ifdef __cplusplus
 }
+
 
 class ADC {
   public:
@@ -88,27 +87,30 @@ class ADC {
     inline int read(uint8_t pin1, uint8_t pin2 = 0xff) {
       if (pin2 == 0xff)
         return analogRead(pin1);
-      uint8_t ch1 = Pin2AdcChannel(pin1);
-      uint8_t ch2 = Pin2AdcChannel(pin2);
+      uint8_t ch1 = 0xff;
+      uint8_t ch2 = 0xff;
       uint8_t chs = (ch1 << 4) + ch2;
-      ADC_SingleInput_TypeDef dif = adcSingleInputDiff0;
-      switch (chs) {
-        case 0x01:
-          dif = adcSingleInputCh0Ch1;
-          break;
-        case 0x23:
-          dif = adcSingleInputCh2Ch3;
-          break;
-        case 0x45:
-          dif = adcSingleInputCh4Ch5;
-          break;
-        case 0x67:
-          dif = adcSingleInputCh6Ch7;
-          break;
-        default:
-          return 0;
-      }
-      return analogReadChannel(dif, true);
+      ADC_InitSingle_TypeDef dif = ADC_INITSINGLE_DEFAULT;
+
+      /* LOOK UP ADC CHANNEL AND PIN */
+      
+      // switch (chs) {
+      //   case 0x01:
+      //     dif = adcSingleInputCh0Ch1;
+      //     break;
+      //   case 0x23:
+      //     dif = adcSingleInputCh2Ch3;
+      //     break;
+      //   case 0x45:
+      //     dif = adcSingleInputCh4Ch5;
+      //     break;
+      //   case 0x67:
+      //     dif = adcSingleInputCh6Ch7;
+      //     break;
+      //   default:
+      //     return 0;
+      // }
+      return analogReadChannel(adcPosSelAPORT2XCH9, true);
     }
 
     int readTemp(void) {
@@ -116,7 +118,7 @@ class ADC {
       int res = getResolution();
       reference(adcRef1V25);   /*must be 1.25V*/
       resolution(adcRes12Bit); /*must be 12bit*/
-      int rtn = analogReadChannel(adcSingleInputTemp, false);
+      int rtn = analogReadChannel(adcPosSelAPORT2XCH9, false);
       reference(ref);     /*resave*/
       resolution((ADC_Res_TypeDef)res);
       return rtn;

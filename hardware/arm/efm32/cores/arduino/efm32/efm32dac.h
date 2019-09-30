@@ -25,7 +25,7 @@
 #include "em_chip.h"
 #include "em_cmu.h"
 #include "em_emu.h"
-#include "em_dac.h"
+#include "em_idac.h"
 
 
 #include "efm32_build_defines.h"
@@ -48,7 +48,7 @@ void     dacWrite(uint32_t channel,uint32_t dacValue);
 template<unsigned int ch =0>
 class DAC {
   public:
-	inline void Init(uint32_t ref = dacRef1V25){
+	inline void Init(uint32_t ref = idacCurrentRange0){
 		setDacRef(ref);
 	}
 	inline void reference(uint32_t ref){
@@ -61,7 +61,7 @@ class DAC {
 		dacWrite(ch,val);
 	}
 	inline void enable(bool en = true){
-        DAC_Enable(DAC0,ch,en);
+        DAC_Enable(IDAC0,ch,en);
 	}
 	inline void pause(void){
         enable(false);
